@@ -1,25 +1,44 @@
 {
-  "include": ["NetscriptDefinitions.d.ts", "src/**/*"],
-  "exclude": ["src/lib/react.ts"],
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
-    "moduleResolution": "node",
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "esModuleInterop": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "types": [
+      "vite/client"
+    ],
     "strict": true,
-    "rootDir": "src/",
-    "outDir": "dist/",
-    "baseUrl": "src/",
     "allowJs": true,
-    "jsx": "react",
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "inlineSourceMap": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
     "paths": {
-      "/*": ["*"],
-      "@ns": ["../NetscriptDefinitions.d.ts"],
-      "@react": ["lib/react.ts"]
+      "@/*": [
+        "src/*"
+      ],
+      "/src/*": [
+        "src/*"
+      ],
+      "@ns": [
+        "./NetscriptDefinitions.d.ts"
+      ]
     }
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "NetscriptDefinitions.d.ts",
+    "vite.config.ts",
+    "vite.config.js"
+  ],
+  "exclude": [
+    "src/**/*.txt"
+  ]
 }

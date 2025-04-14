@@ -1,0 +1,32 @@
+hostname, ip, sshPortOpen, ftpPortOpen, smtpPortOpen, httpPortOpen, sqlPortOpen, hasAdminRights, cpuCores, isConnectedTo, ramUsed, maxRam, organizationName, purchasedByPlayer, backdoorInstalled, baseDifficulty, hackDifficulty, minDifficulty, moneyAvailable, moneyMax, numOpenPortsRequired, openPortCount, requiredHackingSkill, serverGrowth
+n00dles, 25.6.2.3, true, false, false, false, false, true, 1, false, 2.4, 4, Noodle Bar, false, true, 1, 1.102, 1, 1347027.6195843369, 1750000, 0, 1, 1, 3000
+nectar-net, 82.5.0.6, false, false, false, false, false, true, 1, false, 0, 16, Nectar Nightclub Network, false, true, 20, 7.445999999999993, 7, 3041848.957156614, 68750000, 0, 0, 20, 25
+silver-helix, 91.8.9.6, true, true, false, false, false, true, 3, false, 0, 64, Silver Helix, false, false, 30, 30, 10, 45000000, 1125000000, 2, 2, 150, 30
+netlink, 59.7.0.6, true, true, true, true, false, true, 4, false, 0, 64, NetLink Technologies, false, false, 77, 77, 26, 275000000, 6875000000, 3, 4, 398, 69
+summit-uni, 17.8.3.0, true, true, true, true, false, true, 3, false, 0, 16, Summit University, false, false, 65, 65, 22, 228203888, 5705097200, 3, 4, 447, 43
+rho-construction, 0.7.7.6, true, true, true, true, false, true, 4, false, 0, 16, Rho Construction, false, false, 51, 51, 17, 649105888, 16227647200, 3, 4, 514, 50
+foodnstuff, 73.2.1.9, true, false, false, false, false, true, 1, false, 14.7, 16, FoodNStuff, false, false, 10, 4.000000000000009, 3, 2741128.1051886654, 50000000, 0, 1, 1, 5
+zer0, 6.6.0.2, true, true, false, false, false, true, 1, false, 0, 32, ZER0 Nightclub, false, false, 25, 25, 8, 7500000, 187500000, 1, 2, 75, 40
+neo-net, 48.9.2.8, true, true, false, false, false, true, 2, false, 0, 32, Neo Nightclub Network, false, false, 25, 25, 8, 5000000, 125000000, 1, 2, 50, 25
+the-hub, 22.1.0.3, true, true, false, false, false, true, 2, false, 0, 64, The Hub, false, false, 42, 42, 14, 176174641, 4404366025, 2, 2, 282, 47
+phantasy, 18.3.1.2, true, true, false, false, false, true, 3, false, 0, 32, Phantasy Club, false, false, 20, 20, 7, 24000000, 600000000, 2, 2, 100, 35
+avmnite-02h, 86.1.5.4, true, true, false, false, false, true, 3, false, 0, 64, NiteSec, false, false, 1, 1, 1, 0, 0, 2, 2, 204, 1
+I.I.I.I, 37.4.7.8, true, true, true, true, false, true, 5, false, 0, 16, I.I.I.I, false, false, 1, 1, 1, 0, 0, 3, 4, 342, 1
+alpha-ent, 65.4.1.2, true, true, true, true, false, true, 6, false, 0, 16, Alpha Enterprises, false, false, 51, 51, 17, 669332534, 16733313350, 4, 4, 585, 52
+omega-net, 18.3.6.0, true, true, false, false, false, true, 2, false, 0, 32, Omega Software, false, false, 29, 29, 10, 65007360, 1625184000, 2, 2, 215, 31
+computek, 50.8.4.7, true, true, true, true, false, true, 2, false, 0, 0, CompuTek, false, false, 60, 60, 20, 239884399, 5997109975, 3, 4, 391, 51
+rothman-uni, 84.7.0.8, true, true, true, true, false, true, 4, false, 0, 16, Rothman University, false, false, 48, 48, 16, 244436201, 6110905025, 3, 4, 373, 39
+millenium-fitness, 85.2.0.4, true, true, true, true, false, true, 3, false, 0, 256, Millenium Fitness Network, false, false, 50, 50, 17, 250000000, 6250000000, 3, 4, 498, 36
+syscore, 73.1.9.5, true, true, true, true, false, true, 3, false, 0, 0, SysCore Securities, false, false, 79, 79, 26, 545604795, 13640119875, 4, 4, 574, 70
+catalyst, 43.2.8.7, true, true, true, true, false, true, 4, false, 0, 64, Catalyst Ventures, false, false, 61, 61, 20, 425193716, 10629842900, 3, 4, 419, 34
+aevum-police, 28.9.0.1, true, true, true, true, false, true, 4, false, 0, 32, Aevum Police Headquarters, false, false, 77, 77, 26, 247465631, 6186640775, 4, 4, 422, 47
+johnson-ortho, 86.4.8.7, true, true, false, false, false, true, 4, false, 0, 0, Johnson Orthopedics, false, false, 52, 52, 17, 76792657, 1919816425, 2, 2, 283, 61
+crush-fitness, 64.7.3.4, true, true, false, false, false, true, 3, false, 0, 0, Crush Fitness, false, false, 39, 39, 13, 53268530, 1331713250, 2, 2, 231, 33
+sigma-cosmetics, 7.2.3.4, true, false, false, false, false, true, 1, false, 0, 16, Sigma Cosmetics, false, false, 10, 3.7959999999999985, 3, 2319391.482254068, 57500000, 0, 1, 5, 10
+joesguns, 64.4.1.1, true, false, false, false, false, true, 1, false, 0, 16, Joe's Guns, false, false, 15, 9.899999999999988, 5, 2500000, 62500000, 0, 1, 10, 20
+max-hardware, 66.2.2.3, true, true, false, false, false, true, 1, false, 0, 32, Max Hardware Store, false, false, 15, 15, 5, 10000000, 250000000, 1, 2, 80, 30
+CSEC, 84.3.8.3, true, true, false, false, false, true, 1, false, 0, 8, CyberSec, false, true, 1, 1, 1, 0, 0, 1, 2, 58, 1
+hong-fang-tea, 72.4.1.9, true, false, false, false, false, true, 1, false, 0, 16, HongFang Teahouse, false, false, 15, 12.299999999999994, 5, 3000000, 75000000, 0, 1, 30, 20
+harakiri-sushi, 59.9.6.6, true, false, false, false, false, true, 1, false, 0, 16, HaraKiri Sushi Bar Network, false, false, 15, 12.899999999999995, 5, 4000000, 100000000, 0, 1, 40, 40
+iron-gym, 67.7.5.5, true, false, false, false, false, true, 1, false, 0, 32, Iron Gym Network, false, false, 30, 29.35, 10, 20000000, 500000000, 1, 1, 100, 20
+home-2, 59.2.5.5, true, false, false, false, false, true, 1, false, 0, 8, , true, false, 1, 1, 1, 0, 0, 5, 1, 1, 1
