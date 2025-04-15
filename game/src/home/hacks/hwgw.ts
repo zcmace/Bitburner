@@ -34,9 +34,12 @@ export async function main(ns: NS) {
         ['debug', false],
         ['hackPecent', 0.1]
     ])
-
     const target = flags['target'] as string;
     const debug = flags['debug'] as boolean;
+    const hackPercent = flags['hackPercent'] as number;
+    if (hackPercent == 0.1) {
+        ns.tprint('Hack Percent defaulting to 10%');
+    }
     const runner = ns.getServer();
     const player = ns.getPlayer();
     if (!target) {
@@ -45,7 +48,7 @@ export async function main(ns: NS) {
     }
     const targetServer = ns.getServer(target)
     await prepServer(targetServer, runner, player, ns, debug);
-    await runHWGWLoop(targetServer, runner, player, 0.1, ns, debug);
+    await runHWGWLoop(targetServer, runner, player, hackPercent, ns, debug);
 }
 
 async function runHWGWLoop(target: Server, runner: Server, player: Player, hackPercent: number, ns: NS, debug: boolean): Promise<void> {
