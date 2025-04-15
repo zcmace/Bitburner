@@ -33,11 +33,14 @@ export async function main(ns: NS) {
     const flags = ns.flags([
         ['target', ''],
         ['debug', false],
-        ['hackPercent', 0.1]
+        ['hackPercent', 0.1],
+        ['prep', false]
     ])
     const target = flags['target'] as string;
     const debug = flags['debug'] as boolean;
     const hackPercent = flags['hackPercent'] as number;
+    const prep = flags['prep'] as boolean;
+
     if (hackPercent == 0.1) {
         ns.tprint('Hack Percent defaulting to 10%');
     }
@@ -60,6 +63,12 @@ export async function main(ns: NS) {
 
 
     await prepServer(targetServer, runner, player, ns, debug);
+
+    if (prep) {
+        ns.tprint('Running in prep only mode. Skipping HWGW loop');
+        ns.exit()
+    }
+
     await runHWGWLoop(targetServer, runner, player, hackPercent, ns, debug);
 }
 
@@ -86,12 +95,29 @@ async function prepServer(target: Server, runner: Server, player: Player, ns: NS
         ns.tprint('Server is already prepared. Skipping prep.');
         return;
     }
-    const weaken1 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken1Threads, '--target', target.hostname, '--wait', formula.weaken1Wait);
-    const grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
-    const weaken2 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken2Threads, '--target', target.hostname, '--wait', formula.weaken2Wait);
-    if (!weaken1 || !grow || !weaken2) {
-        ns.tprintf('Failed to start 1 or more prep scripts. Exiting script.');
-        ns.exit();
+    let weaken1 = 0;
+    let grow = 0;
+    let weaken2 = 0;
+    if (formula.weaken1Threads != 0) {
+        weaken1 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken1Threads, '--target', target.hostname, '--wait', formula.weaken1Wait);
+        if (!weaken1) {
+            ns.tprintf('Failed to start weaken #1 script. Exiting script.');
+            ns.exit();
+        }
+    }
+    if (formula.growThreads != 0) {
+        grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
+        if (!grow) {
+            ns.tprintf('Failed to start grow script. Exiting script.');
+            ns.exit();
+        }
+    }
+    if (formula.weaken2Threads != 0) {
+        weaken2 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken2Threads, '--target', target.hostname, '--wait', formula.weaken2Wait);
+        if (!weaken2) {
+            ns.tprintf('Failed to start weaken #2 script. Exiting script.');
+            ns.exit();
+        }
     }
     while (ns.isRunning(weaken1) || ns.isRunning(grow) || ns.isRunning(weaken2)) {
         await ns.sleep(1000);
