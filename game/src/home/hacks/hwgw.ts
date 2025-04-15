@@ -24,6 +24,7 @@ interface PrepFormula {
 interface ScriptRunInfo {
     hackTime: number;
     growTime: number;
+    weakenTime: number;
     growMem: number;
     hackMem: number;
 }
@@ -32,7 +33,7 @@ export async function main(ns: NS) {
     const flags = ns.flags([
         ['target', ''],
         ['debug', false],
-        ['hackPecent', 0.1]
+        ['hackPercent', 0.1]
     ])
     const target = flags['target'] as string;
     const debug = flags['debug'] as boolean;
@@ -47,6 +48,17 @@ export async function main(ns: NS) {
         return;
     }
     const targetServer = ns.getServer(target)
+
+    if (debug) {
+        const cyan = "\u001b[36m";
+        const reset = "\u001b[0m";
+        ns.tprint(`\n${cyan}Running in debug mode. No scripts will be executed.${reset}\n`)
+        calculatePrep(targetServer, runner, player, ns, debug);
+        calculateHWGWByHackPercent(targetServer, runner, player, hackPercent, ns, debug);
+        ns.exit();
+    }
+
+
     await prepServer(targetServer, runner, player, ns, debug);
     await runHWGWLoop(targetServer, runner, player, hackPercent, ns, debug);
 }
@@ -54,7 +66,7 @@ export async function main(ns: NS) {
 async function runHWGWLoop(target: Server, runner: Server, player: Player, hackPercent: number, ns: NS, debug: boolean): Promise<void> {
     while (true) {
         const formula = calculateHWGWByHackPercent(target, runner, player, hackPercent, ns, debug);
-        const hack = ns.exec('/hacks/hack.js', runner.hostname, formula.weaken1Threads, '--target', target.hostname, '--wait', formula.weaken1Wait);
+        const hack = ns.exec('/hacks/hack.js', runner.hostname, formula.hackThreads, '--target', target.hostname, '--wait', formula.hackWait);
         const weaken1 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken1Threads, '--target', target.hostname, '--wait', formula.weaken1Wait);
         const grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
         const weaken2 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken2Threads, '--target', target.hostname, '--wait', formula.weaken2Wait);
@@ -70,9 +82,9 @@ async function runHWGWLoop(target: Server, runner: Server, player: Player, hackP
 
 async function prepServer(target: Server, runner: Server, player: Player, ns: NS, debug: boolean): Promise<void> {
     const formula = calculatePrep(target, runner, player, ns, debug);
-    if (debug) {
-        ns.tprint('Running in debug mode. No scripts will be executed.');
-        ns.exit();
+    if ((formula.weaken1Threads + formula.weaken2Threads + formula.growThreads) == 0) {
+        ns.tprint('Server is already prepared. Skipping prep.');
+        return;
     }
     const weaken1 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken1Threads, '--target', target.hostname, '--wait', formula.weaken1Wait);
     const grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
@@ -110,8 +122,8 @@ function calculatePrep(target: Server, runner: Server, player: Player, ns: NS, d
         ns.tprintf('Weaken #1 Wait: %s', result.weaken1Wait);
         ns.tprintf('Grow Threads: %s', result.growThreads);
         ns.tprintf('Grow Wait: %s', result.growWait);
-        ns.tprintf('Weaken #2 Threads: %s', result.weaken1Threads);
-        ns.tprintf('Weaken #2 Wait: %s', result.weaken1Wait);
+        ns.tprintf('Weaken #2 Threads: %s', result.weaken2Threads);
+        ns.tprintf('Weaken #2 Wait: %s', result.weaken2Wait);
     }
     return result as PrepFormula;
 }
@@ -135,16 +147,15 @@ function calculateHWGWByHackPercent(target: Server, runner: Server, player: Play
         ns.tprintf('Max Hack Threads: %s at %s gb per thread', maxHackThreads, hackMem);
         ns.tprintf('Max Grow/Weaken Threads: %s at %s gb per thread', maxGrowThreads, growMem);
     }
-    const amountToHack = ns.getServerMaxMoney(target.hostname) * hackPercent;
     const moneyAvailable = ns.getServerMoneyAvailable(target.hostname);
     //setting hack threads to round down so that we don't slowly drain more than 10 percent
-    const hackThreads = Math.floor(hackPercent / f.hackPercent(target, player));
+    const hackThreads = Math.floor(hackPercent / f.hackPercent(target, player)) || 0;
     const hackOffset = hackThreads * 0.002;
-    const weaken1Threads = hackOffset / 0.05;
+    const weaken1Threads = Math.ceil(hackOffset / 0.05);
     //setting targets moneyAvailable to projected amount after hacking for grow threads calculation
     target.moneyAvailable = moneyAvailable * (1 - (f.hackPercent(target, player) * hackThreads));
     const growThreads = f.growThreads(target, player, ns.getServerMaxMoney(target.hostname), runner.cpuCores);
-    const growSecOffset = ns.growthAnalyzeSecurity(growThreads, target.hostname, runner.cpuCores);
+    const growSecOffset = growThreads * 0.004;
     const weaken2Threads = Math.ceil(growSecOffset / 0.05);
     target.moneyAvailable = moneyAvailable;
     const hackWait = weakenTime - hackTime;
@@ -153,7 +164,7 @@ function calculateHWGWByHackPercent(target: Server, runner: Server, player: Play
     const weaken2Wait = 1500;
     const formula: HackingFormula = {hackThreads, hackWait, weaken1Threads, weaken1Wait, growThreads, growWait, weaken2Threads, weaken2Wait};
     if (debug) {
-        printHackingFormulaDebug(formula, {hackMem, growMem, hackTime, growTime}, ns);
+        printHackingFormulaDebug(formula, {hackMem, growMem, weakenTime, hackTime, growTime}, ns);
         ns.tprintf('Hack Chance: %s', f.hackChance(target, player));
     }
     return {hackThreads, hackWait, weaken1Threads, weaken1Wait, growThreads, growWait, weaken2Threads, weaken2Wait} as HackingFormula;
@@ -182,6 +193,7 @@ function printHackingFormulaDebug(formula: HackingFormula, runInfo: ScriptRunInf
     const {
         hackTime,
         growTime,
+        weakenTime,
         hackMem,
         growMem
     } = runInfo;
@@ -195,9 +207,9 @@ function printHackingFormulaDebug(formula: HackingFormula, runInfo: ScriptRunInf
     );
     ns.tprintf(
         'Weaken #1 Time: %s | Offset: %s | Total: %s',
-        formatTime(growTime),
+        formatTime(weakenTime),
         formatTime(weaken1Wait),
-        formatTime(growTime + weaken1Wait),
+        formatTime(weakenTime + weaken1Wait),
     );
     ns.tprintf(
         'Grow Time: %s | Offset: %s | Total: %s',
@@ -207,9 +219,9 @@ function printHackingFormulaDebug(formula: HackingFormula, runInfo: ScriptRunInf
     );
     ns.tprintf(
         'Weaken #2 Time: %s | Offset: %s | Total: %s',
+        formatTime(weakenTime),
         formatTime(weaken2Wait),
-        formatTime(hackWait),
-        formatTime(growTime + weaken2Wait),
+        formatTime(weakenTime + weaken2Wait),
     );
 
     ns.tprintf(
