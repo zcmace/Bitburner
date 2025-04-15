@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: Bitburner Server Management API
+  description: API for managing server information in Bitburner game environment
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /servers:
+    get:
+      summary: Get all servers
+      description: Retrieves a list of all servers in the database
+      operationId: getAllServers
+      responses:
+        '200':
+          description: A list of servers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Server'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new server
+      description: Adds a new server to the database
+      operationId: createServer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerInput'
+      responses:
+        '201':
+          description: Server created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+        '400':
+          description: Bad request - missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /servers/{hostname}:
+    parameters:
+      - name: hostname
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Hostname of the server
+    get:
+      summary: Get server by hostname
+      description: Retrieves a specific server by its hostname
+      operationId: getServer
+      responses:
+        '200':
+          description: Server found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+        '404':
+          description: Server not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update server
+      description: Updates a server's information
+      operationId: updateServer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerInput'
+      responses:
+        '200':
+          description: Server updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+        '404':
+          description: Server not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete server
+      description: Deletes a server from the database
+      operationId: deleteServer
+      responses:
+        '204':
+          description: Server deleted successfully
+        '404':
+          description: Server not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    ServerInput:
+      type: object
+      required:
+        - hostname
+      properties:
+        hostname:
+          type: string
+          description: The unique identifier for the server
+        ip:
+          type: string
+          description: IP address of the server
+        organizationName:
+          type: string
+          description: Organization that owns the server
+        requiredHackingSkill:
+          type: integer
+          description: Required hacking skill level to hack the server
+        maxMoney:
+          type: number
+          format: float
+          description: Maximum money available on the server
+        minSecurityLevel:
+          type: number
+          format: float
+          description: Minimum security level of the server
+        numOpenPortsRequired:
+          type: integer
+          description: Number of open ports required to hack the server
+        serverGrowth:
+          type: number
+          format: float
+          description: Growth rate of the server
+        backdoorInstalled:
+          type: boolean
+          description: Whether backdoor is installed on the server
+    Server:
+      allOf:
+        - $ref: '#/components/schemas/ServerInput'
+        - type: object
+          properties:
+            createdAt:
+              type: string
+              format: date-time
+              description: When the server record was created
+            updatedAt:
+              type: string
+              format: date-time
+              description: When the server record was last updated
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message

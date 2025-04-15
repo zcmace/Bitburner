@@ -2,25 +2,34 @@
   "name": "viteburner-template",
   "version": "0.0.0",
   "scripts": {
-    "dev": "viteburner"
+    "dev": "viteburner",
+    "server": "node server.mjs"
   },
   "author": "Tanimodori",
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "@types/node": "^18.15.3",
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
+    "concurrently": "^9.1.2",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^4.9.5",
     "vite": "^4.1.4",
     "viteburner": "^0.5.3"
   },
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.8.4",
+    "express": "^5.1.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   }
 }

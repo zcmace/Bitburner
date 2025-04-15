@@ -4,10 +4,10 @@ export async function main(ns: NS) {
   const flags = ns.flags([['target', '']]);
   const host = flags['target'] as string;
   ns.tprint(host);
-  const hackThreads = 148;
-  const hackWeakThreads = 6;
-  const growThreads = 131;
-  const growWeakThreads = 11;
+  const hackThreads = 200;
+  const hackWeakThreads = 30;
+  const growThreads = 800;
+  const growWeakThreads = 210;
   const hackWait = 352540;
   const weak1Wait = 500;
   const growWait = 95011;

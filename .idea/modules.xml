@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Bitburner.iml" filepath="$PROJECT_DIR$/.idea/Bitburner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/game/.idea/Bitburner.iml" filepath="$PROJECT_DIR$/game/.idea/Bitburner.iml" />
     </modules>
   </component>
 </project>
