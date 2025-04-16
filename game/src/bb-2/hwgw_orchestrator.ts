@@ -1,5 +1,5 @@
 import {NS} from '@ns';
-import {calculateHWGWByHackPercent} from "@/home/hacks/hwgw";
+import {calculateHWGWByHackPercent} from "@/bb-2/hwgw";
 
 export async function main(ns: NS) {
     const flags = ns.flags([

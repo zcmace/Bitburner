@@ -17,5 +17,9 @@ export async function main(ns: NS) {
 function evaluateJuiciness(server: Server, player: Player, ns: NS) {
     const maxMoney = server.moneyMax || 0;
     const growthRate = server.serverGrowth || 0;
-    return (maxMoney * growthRate) / ns.formulas.hacking.growTime(server, player) / ns.formulas.hacking.hackTime(server, player);
+    if (ns.fileExists('Formulas.exe', 'home')) {
+        return (maxMoney * growthRate) / ns.formulas.hacking.growTime(server, player) / ns.formulas.hacking.hackTime(server, player);
+    } else {
+        return (maxMoney * growthRate);
+    }
 }

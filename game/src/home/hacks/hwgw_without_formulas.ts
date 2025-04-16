@@ -125,19 +125,21 @@ async function prepServer(target: Server, runner: Server, player: Player, ns: NS
 }
 
 
-export function calculatePrep(target: Server, runner: Server, player: Player, ns: NS, debug: boolean): PrepFormula {
+function calculatePrep(target: Server, runner: Server, player: Player, ns: NS, debug: boolean): PrepFormula {
     const minSecLevel = ns.getServerMinSecurityLevel(target.hostname);
     const currSecLevel = ns.getServerSecurityLevel(target.hostname);
     const secDifference = currSecLevel - minSecLevel;
-    const f = ns.formulas.hacking;
     //times
-    const weakenTime = f.weakenTime(target, player);
-    const growTime = f.growTime(target, player);
+    const weakenTime = ns.getWeakenTime(target.hostname);
+    const growTime = ns.getGrowTime(target.hostname);
     //build formula
     const result: Partial<PrepFormula> = {};
     result.weaken1Threads = Math.ceil((currSecLevel - minSecLevel) / 0.05);
     result.weaken1Wait = 0;
-    result.growThreads = f.growThreads(target, player, ns.getServerMaxMoney(target.hostname), runner.cpuCores);
+    const maxMoney = ns.getServerMaxMoney(target.hostname);
+    const moneyAvailable = ns.getServerMoneyAvailable(target.hostname);
+    const multiplierNeeded = maxMoney / moneyAvailable;
+    result.growThreads = Math.ceil(ns.growthAnalyze(target.hostname, multiplierNeeded, runner.cpuCores));
     const growSecOffset = result.growThreads * 0.004;
     result.growWait = (weakenTime - growTime) + 500;
     result.weaken2Threads = Math.ceil(growSecOffset / 0.05);
@@ -154,12 +156,11 @@ export function calculatePrep(target: Server, runner: Server, player: Player, ns
     return result as PrepFormula;
 }
 
-export function calculateHWGWByHackPercent(target: Server, runner: Server, player: Player, hackPercent: number, ns: NS, debug: boolean): HackingFormula {
-    const f = ns.formulas.hacking;
+function calculateHWGWByHackPercent(target: Server, runner: Server, player: Player, hackPercent: number, ns: NS, debug: boolean): HackingFormula {
     //times
-    const hackTime = f.hackTime(target, player);
-    const weakenTime = f.weakenTime(target, player);
-    const growTime = f.growTime(target, player);
+    const hackTime = ns.getHackTime(target.hostname);
+    const weakenTime = ns.getWeakenTime(target.hostname);
+    const growTime = ns.getGrowTime(target.hostname);
     // The below is correct in general but should be tested.
     // Grow to Weaken threads proportion is 2 weaken thread per 25 grow threads
     // Hack to weaken threads proportion is 1 weaken thread per 25 hack threads
@@ -175,12 +176,12 @@ export function calculateHWGWByHackPercent(target: Server, runner: Server, playe
     }
     const moneyAvailable = ns.getServerMoneyAvailable(target.hostname);
     //setting hack threads to round down so that we don't slowly drain more than 10 percent
-    const hackThreads = Math.floor(hackPercent / f.hackPercent(target, player)) || 0;
+    const hackThreads = Math.floor(ns.hackAnalyzeThreads(target.hostname, moneyAvailable * 0.1));
     const hackOffset = hackThreads * 0.002;
     const weaken1Threads = Math.ceil(hackOffset / 0.05);
     //setting targets moneyAvailable to projected amount after hacking for grow threads calculation
-    target.moneyAvailable = moneyAvailable * (1 - (f.hackPercent(target, player) * hackThreads));
-    const growThreads = f.growThreads(target, player, ns.getServerMaxMoney(target.hostname), runner.cpuCores);
+    target.moneyAvailable = moneyAvailable * 0.1
+    const growThreads = Math.ceil(ns.growthAnalyze(target.hostname, 1.12, runner.cpuCores));
     const growSecOffset = growThreads * 0.004;
     const weaken2Threads = Math.ceil(growSecOffset / 0.05);
     target.moneyAvailable = moneyAvailable;
@@ -191,7 +192,7 @@ export function calculateHWGWByHackPercent(target: Server, runner: Server, playe
     const formula: HackingFormula = {hackThreads, hackWait, weaken1Threads, weaken1Wait, growThreads, growWait, weaken2Threads, weaken2Wait};
     if (debug) {
         printHackingFormulaDebug(formula, {hackMem, growMem, weakenTime, hackTime, growTime}, ns);
-        ns.tprintf('Hack Chance: %s', f.hackChance(target, player));
+        ns.tprintf('Hack Chance: %s', ns.hackAnalyzeChance(target.hostname));
     }
     return {hackThreads, hackWait, weaken1Threads, weaken1Wait, growThreads, growWait, weaken2Threads, weaken2Wait} as HackingFormula;
 }
@@ -204,7 +205,7 @@ function formatTime(timeInMs: number) {
     return `${hoursPart}:${minutesPart}:${secPart}.${Math.ceil(msPart)}`;
 }
 
-export function printHackingFormulaDebug(formula: HackingFormula, runInfo: ScriptRunInfo, ns: NS): void {
+function printHackingFormulaDebug(formula: HackingFormula, runInfo: ScriptRunInfo, ns: NS): void {
     const {
         hackWait,
         hackThreads,

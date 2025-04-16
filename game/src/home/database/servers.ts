@@ -40,3 +40,10 @@ export async function deleteServer(host: string): Promise<boolean> {
     return response.status == 204;
 }
 
+export async function deleteAlServers(): Promise<boolean> {
+    const response: Response = await fetch(`http://localhost:3000/servers`, {
+        method: 'DELETE'
+    });
+    return response.status == 204;
+}
+

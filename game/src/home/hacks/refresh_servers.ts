@@ -1,5 +1,5 @@
 import {NS, Server} from '@ns';
-import {createServer} from "@/home/database/servers";
+import {createServer, deleteAlServers} from "@/home/database/servers";
 
 /**
  * The main entry point for the script. Scans the network, attempts to crack hosts up to a specified depth,
@@ -22,7 +22,7 @@ export async function main(ns: NS) {
         ['h', ''],
         ['d', 0],
     ]);
-
+    await deleteAlServers();
     const rootHost = (flags['h'] as string) || ns.getHostname();
     const maxDepth = (flags['d'] as number) || 5;
     const crackedHosts: string[] = recursiveCrack(rootHost, 0, maxDepth, ns);

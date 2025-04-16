@@ -97,4 +97,15 @@ serverRouter.delete(
     }),
 );
 
+// Delete a server by hostname
+serverRouter.delete(
+    '/',
+    asyncHandler(async (req: Request, res: Response) => {
+        const serverController = req.app.locals.serverController as ServerController;
+        // Delete all servers
+        await serverController.deleteAllServers()
+        res.status(204).send(); // No content response for successful deletion
+    }),
+);
+
 export default serverRouter;
