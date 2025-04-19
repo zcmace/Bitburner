@@ -80,7 +80,19 @@ async function runHWGWLoop(target: Server, runner: Server, player: Player, hackP
         const grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
         const weaken2 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken2Threads, '--target', target.hostname, '--wait', formula.weaken2Wait);
         if (!hack || !weaken1 || !grow || !weaken2) {
-            ns.tprintf('Failed to start 1 or more HWGW scripts. Exiting script.');
+            ns.printf('Failed to start 1 or more HWGW scripts. Killing child processes and exiting script.');
+            if (hack) {
+                ns.kill(hack);
+            }
+            if (grow) {
+                ns.kill(grow);
+            }
+            if (weaken1) {
+                ns.kill(weaken1);
+            }
+            if (weaken2) {
+                ns.kill(weaken2);
+            }
             ns.exit();
         }
         while (ns.isRunning(hack) || ns.isRunning(weaken1) || ns.isRunning(grow) || ns.isRunning(weaken2)) {
@@ -100,24 +112,25 @@ async function prepServer(target: Server, runner: Server, player: Player, ns: NS
     let weaken2 = 0;
     if (formula.weaken1Threads != 0) {
         weaken1 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken1Threads, '--target', target.hostname, '--wait', formula.weaken1Wait);
-        if (!weaken1) {
-            ns.tprintf('Failed to start weaken #1 script. Exiting script.');
-            ns.exit();
-        }
     }
     if (formula.growThreads != 0) {
         grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
-        if (!grow) {
-            ns.tprintf('Failed to start grow script. Exiting script.');
-            ns.exit();
-        }
     }
     if (formula.weaken2Threads != 0) {
         weaken2 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken2Threads, '--target', target.hostname, '--wait', formula.weaken2Wait);
-        if (!weaken2) {
-            ns.tprintf('Failed to start weaken #2 script. Exiting script.');
-            ns.exit();
+    }
+    if (!grow || !weaken1 || !weaken2) {
+        ns.printf('Failed to start 1 or more prep scripts. Killing child processes and exiting script.');
+        if (grow) {
+            ns.kill(grow);
         }
+        if (weaken1) {
+            ns.kill(weaken1);
+        }
+        if (weaken2) {
+            ns.kill(weaken2);
+        }
+        ns.exit();
     }
     while (ns.isRunning(weaken1) || ns.isRunning(grow) || ns.isRunning(weaken2)) {
         await ns.sleep(1000);
@@ -125,7 +138,7 @@ async function prepServer(target: Server, runner: Server, player: Player, ns: NS
 }
 
 
-function calculatePrep(target: Server, runner: Server, player: Player, ns: NS, debug: boolean): PrepFormula {
+export function calculatePrep(target: Server, runner: Server, player: Player, ns: NS, debug: boolean): PrepFormula {
     const minSecLevel = ns.getServerMinSecurityLevel(target.hostname);
     const currSecLevel = ns.getServerSecurityLevel(target.hostname);
     const secDifference = currSecLevel - minSecLevel;
@@ -156,7 +169,7 @@ function calculatePrep(target: Server, runner: Server, player: Player, ns: NS, d
     return result as PrepFormula;
 }
 
-function calculateHWGWByHackPercent(target: Server, runner: Server, player: Player, hackPercent: number, ns: NS, debug: boolean): HackingFormula {
+export function calculateHWGWByHackPercent(target: Server, runner: Server, player: Player, hackPercent: number, ns: NS, debug: boolean): HackingFormula {
     //times
     const hackTime = ns.getHackTime(target.hostname);
     const weakenTime = ns.getWeakenTime(target.hostname);

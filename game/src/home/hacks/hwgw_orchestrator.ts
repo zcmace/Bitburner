@@ -16,7 +16,6 @@ export async function main(ns: NS) {
     const targetServer = ns.getServer(target);
     const runner = ns.getServer();
     const player = ns.getPlayer();
-    ns.scan()
 
     const hackFormula = calculateHWGWByHackPercent(targetServer, runner, player, 0.1, ns, false);
     const hackTime = ns.formulas.hacking.hackTime(targetServer, player);
@@ -44,7 +43,7 @@ export async function main(ns: NS) {
     await launchHWGWInstances(target, totalCycleTime, totalHWGWloops, ns);
 }
 
-export async function launchHWGWInstances(target: string, offset: number, instances: number, ns: NS) {
+async function launchHWGWInstances(target: string, offset: number, instances: number, ns: NS) {
     ns.printf('Executing %s instances of HWGW on %s with offset %d', instances, target, offset);
     for (let i = 0; i < instances; i++) {
         ns.printf('Starting instance %d', i + 1);

@@ -65,13 +65,15 @@ export function topUpPortfolio(portfolioSize: number, buyMax: boolean, ns: NS) {
         }
         const stock = stocksAvailableToBuy[i];
         const sharesAvailable = stock.maxShares - stock.longPosition.shares;
-        const purchaseCost = ns.stock.getPurchaseCost(stock.symbol, sharesAvailable, "L");
+        let purchaseCost = ns.stock.getPurchaseCost(stock.symbol, sharesAvailable, "L") + 100000;
         if (purchaseCost <= currentCash) {
             const tradeSuccessful = buyStockShares(stock.symbol, sharesAvailable, ns);
             if (tradeSuccessful) {
                 currentPortfolioSize++;
                 continue;
             }
+        } else {
+            ns.printf('Failed to buy %s of %s for %s', ns.formatNumber(sharesAvailable), stock.symbol, ns.formatNumber(purchaseCost));
         }
 
         const askPrice = stock.ask;
@@ -79,14 +81,20 @@ export function topUpPortfolio(portfolioSize: number, buyMax: boolean, ns: NS) {
             ns.print("Can't buy any stock, you broke.")
             return;
         }
-        const sharesToBuy = sharesAvailable - Math.floor((currentCash - 100000) / stock.ask);
-        if (sharesToBuy > 0) {
+        const sharesToBuy = Math.floor((currentCash - 100000) / stock.ask);
+        purchaseCost = ns.stock.getPurchaseCost(stock.symbol, sharesToBuy, "L") + 100000;
+        if (sharesToBuy > 0
+            && purchaseCost <= currentCash
+            && sharesToBuy <= sharesAvailable) {
             const tradeSuccessful = buyStockShares(stock.symbol, sharesToBuy, ns);
             if (tradeSuccessful) {
                 currentPortfolioSize++;
             }
+        } else {
+            ns.printf('Failed to buy %s of %s for %s', ns.formatNumber(sharesToBuy), stock.symbol, ns.formatNumber(purchaseCost));
         }
     }
+    ns.printf('CurrentCash: %s', ns.formatNumber(currentCash));
 }
 
 function buyStockShares(symbol: string, shares: number, ns: NS): boolean {
@@ -148,13 +156,15 @@ export function printPortfolio(stocks: Stock[], ns: NS) {
     ns.print(formatAsTable(tableData));
     ns.printf('Total P/L: %s (%s)', formatAmount(totalPL, ns), formatPercent(totalPL / totalCost, 0, ns));
     const lines = 6 + stocks.length;
-    ns.ui.resizeTail(465, lines * 25);
-    ns.ui.moveTail(1450, 0);
+    // ns.ui.resizeTail(465, lines * 25);
+    // ns.ui.moveTail(1450, 0);
     ns.ui.renderTail();
 }
 
 export function formatPercent(number: number, threshold: number, ns: NS): string {
-    // return ns.formatPercent(number);
+    if (!number) {
+        ns.formatPercent(0);
+    }
     if (number < threshold) {
         return `${red}${ns.formatPercent(number)}${reset}`;
     }
@@ -163,6 +173,9 @@ export function formatPercent(number: number, threshold: number, ns: NS): string
 
 export function formatAmount(number: number, ns: NS): string {
     // return ns.formatNumber(number);
+    if (!number) {
+        ns.formatNumber(0);
+    }
     if (number < 0) {
         return `${red}${ns.formatNumber(number)}${reset}`;
     }
