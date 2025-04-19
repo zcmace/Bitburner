@@ -22,7 +22,10 @@ export async function main(ns: NS) {
         ['h', ''],
         ['d', 0],
     ]);
-    await deleteAlServers();
+    const success: boolean = await deleteAlServers();
+    if (!success) {
+        ns.tprintf('Could not delete all servers');
+    }
     const rootHost = (flags['h'] as string) || ns.getHostname();
     const maxDepth = (flags['d'] as number) || 5;
     const crackedHosts: string[] = recursiveCrack(rootHost, 0, maxDepth, ns);

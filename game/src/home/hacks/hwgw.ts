@@ -40,14 +40,10 @@ export async function main(ns: NS) {
     const debug = flags['debug'] as boolean;
     const hackPercent = flags['hackPercent'] as number;
     const prep = flags['prep'] as boolean;
-
-    if (hackPercent == 0.1) {
-        ns.tprint('Hack Percent defaulting to 10%');
-    }
     const runner = ns.getServer();
     const player = ns.getPlayer();
     if (!target) {
-        ns.tprint('No target specified');
+        ns.print('No target specified');
         return;
     }
     const targetServer = ns.getServer(target)
@@ -65,7 +61,7 @@ export async function main(ns: NS) {
     await prepServer(targetServer, runner, player, ns, debug);
 
     if (prep) {
-        ns.tprint('Running in prep only mode. Skipping HWGW loop');
+        ns.print('Running in prep only mode. Skipping HWGW loop');
         ns.exit()
     }
 
@@ -80,7 +76,19 @@ async function runHWGWLoop(target: Server, runner: Server, player: Player, hackP
         const grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
         const weaken2 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken2Threads, '--target', target.hostname, '--wait', formula.weaken2Wait);
         if (!hack || !weaken1 || !grow || !weaken2) {
-            ns.tprintf('Failed to start 1 or more HWGW scripts. Exiting script.');
+            ns.printf('Failed to start 1 or more HWGW scripts. Killing child processes and exiting script.');
+            if (hack) {
+                ns.kill(hack);
+            }
+            if (grow) {
+                ns.kill(grow);
+            }
+            if (weaken1) {
+                ns.kill(weaken1);
+            }
+            if (weaken2) {
+                ns.kill(weaken2);
+            }
             ns.exit();
         }
         while (ns.isRunning(hack) || ns.isRunning(weaken1) || ns.isRunning(grow) || ns.isRunning(weaken2)) {
@@ -92,7 +100,7 @@ async function runHWGWLoop(target: Server, runner: Server, player: Player, hackP
 async function prepServer(target: Server, runner: Server, player: Player, ns: NS, debug: boolean): Promise<void> {
     const formula = calculatePrep(target, runner, player, ns, debug);
     if ((formula.weaken1Threads + formula.weaken2Threads + formula.growThreads) == 0) {
-        ns.tprint('Server is already prepared. Skipping prep.');
+        ns.print('Server is already prepared. Skipping prep.');
         return;
     }
     let weaken1 = 0;
@@ -100,25 +108,27 @@ async function prepServer(target: Server, runner: Server, player: Player, ns: NS
     let weaken2 = 0;
     if (formula.weaken1Threads != 0) {
         weaken1 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken1Threads, '--target', target.hostname, '--wait', formula.weaken1Wait);
-        if (!weaken1) {
-            ns.tprintf('Failed to start weaken #1 script. Exiting script.');
-            ns.exit();
-        }
     }
     if (formula.growThreads != 0) {
         grow = ns.exec('/hacks/grow.js', runner.hostname, formula.growThreads, '--target', target.hostname, '--wait', formula.growWait);
-        if (!grow) {
-            ns.tprintf('Failed to start grow script. Exiting script.');
-            ns.exit();
-        }
     }
     if (formula.weaken2Threads != 0) {
         weaken2 = ns.exec('/hacks/weaken.js', runner.hostname, formula.weaken2Threads, '--target', target.hostname, '--wait', formula.weaken2Wait);
-        if (!weaken2) {
-            ns.tprintf('Failed to start weaken #2 script. Exiting script.');
-            ns.exit();
-        }
     }
+    if (!grow || !weaken1 || !weaken2) {
+        ns.printf('Failed to start 1 or more prep scripts. Killing child processes and exiting script.');
+        if (grow) {
+            ns.kill(grow);
+        }
+        if (weaken1) {
+            ns.kill(weaken1);
+        }
+        if (weaken2) {
+            ns.kill(weaken2);
+        }
+        ns.exit();
+    }
+
     while (ns.isRunning(weaken1) || ns.isRunning(grow) || ns.isRunning(weaken2)) {
         await ns.sleep(1000);
     }
@@ -179,6 +189,7 @@ export function calculateHWGWByHackPercent(target: Server, runner: Server, playe
     const hackOffset = hackThreads * 0.002;
     const weaken1Threads = Math.ceil(hackOffset / 0.05);
     //setting targets moneyAvailable to projected amount after hacking for grow threads calculation
+    ns.print(f.hackPercent(target, player) * hackThreads);
     target.moneyAvailable = moneyAvailable * (1 - (f.hackPercent(target, player) * hackThreads));
     const growThreads = f.growThreads(target, player, ns.getServerMaxMoney(target.hostname), runner.cpuCores);
     const growSecOffset = growThreads * 0.004;

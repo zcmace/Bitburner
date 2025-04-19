@@ -12,10 +12,11 @@ export async function main(ns: NS) {
         ns.tprint('No target specified');
         ns.exit();
     }
-
+    ns.ui.openTail();
     const targetServer = ns.getServer(target);
     const runner = ns.getServer();
     const player = ns.getPlayer();
+    ns.scan()
 
     const hackFormula = calculateHWGWByHackPercent(targetServer, runner, player, 0.1, ns, false);
     const hackTime = ns.formulas.hacking.hackTime(targetServer, player);
@@ -44,9 +45,9 @@ export async function main(ns: NS) {
 }
 
 export async function launchHWGWInstances(target: string, offset: number, instances: number, ns: NS) {
-    ns.tprintf('Executing %s instances of HWGW on %s with offset %d', instances, target, offset);
+    ns.printf('Executing %s instances of HWGW on %s with offset %d', instances, target, offset);
     for (let i = 0; i < instances; i++) {
-        ns.tprintf('Starting instance %d', i + 1);
+        ns.printf('Starting instance %d', i + 1);
         ns.exec('./hwgw.js', ns.getHostname(), 1, '--target', target);
         await ns.sleep(offset);
     }

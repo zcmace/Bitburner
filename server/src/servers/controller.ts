@@ -190,7 +190,7 @@ class ServerController {
     }
 
     async deleteAllServers(): Promise<void> {
-        const sql = 'DELETE FROM server';
+        const sql = 'DELETE FROM servers';
         const result = await this.db.run(sql);
         if (result.changes === 0) {
             throw new Error('Server deletion failed');

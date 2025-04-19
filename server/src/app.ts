@@ -1,7 +1,7 @@
 import express from "express";
-import {getDatabase} from "./database";
 import ServerController from "./servers/controller";
 import serverRouter from "./servers/router";
+import {getDatabase} from "./database";
 
 
 const app = express();
@@ -10,8 +10,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
-// Initialize database and controllers
-async function initializeApp() {
+async function startServer() {
     try {
         const db = await getDatabase();
 
@@ -34,4 +33,6 @@ async function initializeApp() {
     }
 }
 
-initializeApp();
+// Call the async function
+startServer();
+

@@ -92,8 +92,13 @@ serverRouter.delete(
         }
 
         // Delete the server
-        await serverController.deleteServer(hostname);
-        res.status(204).send(); // No content response for successful deletion
+        try {
+            await serverController.deleteServer(hostname);
+            res.status(204).send(); // No content response for successful deletion
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error);
+        }
     }),
 );
 
